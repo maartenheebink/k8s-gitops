@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c -f htpc.yml
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nzbget
+  name: nzbget
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nzbget
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c -f htpc.yml
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/k8s-gitops-default: "true"
+        io.kompose.service: nzbget
+    spec:
+      containers:
+        - env:
+            - name: PGID
+            - name: PUID
+            - name: TZ
+          image: linuxserver/nzbget:latest
+          name: nzbget
+          resources: {}
+          volumeMounts:
+            - mountPath: /downloads
+              name: nzbget-claim0
+            - mountPath: /config
+              name: nzbget-claim1
+            - mountPath: /downloads/intermediate
+              name: nzbget-claim2
+      restartPolicy: Always
+      volumes:
+        - name: nzbget-claim0
+          persistentVolumeClaim:
+            claimName: nzbget-claim0
+        - name: nzbget-claim1
+          persistentVolumeClaim:
+            claimName: nzbget-claim1
+        - name: nzbget-claim2
+          persistentVolumeClaim:
+            claimName: nzbget-claim2
+status: {}

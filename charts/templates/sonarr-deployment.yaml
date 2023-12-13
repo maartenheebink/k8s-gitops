@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c -f htpc.yml
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sonarr
+  name: sonarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sonarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c -f htpc.yml
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/k8s-gitops-default: "true"
+        io.kompose.service: sonarr
+    spec:
+      containers:
+        - env:
+            - name: PGID
+            - name: PUID
+            - name: TZ
+          image: linuxserver/sonarr:latest
+          name: sonarr
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/localtime
+              name: sonarr-claim0
+              readOnly: true
+            - mountPath: /config
+              name: sonarr-claim1
+            - mountPath: /tv
+              name: sonarr-claim2
+            - mountPath: /downloads
+              name: sonarr-claim3
+      restartPolicy: Always
+      volumes:
+        - name: sonarr-claim0
+          persistentVolumeClaim:
+            claimName: sonarr-claim0
+            readOnly: true
+        - name: sonarr-claim1
+          persistentVolumeClaim:
+            claimName: sonarr-claim1
+        - name: sonarr-claim2
+          persistentVolumeClaim:
+            claimName: sonarr-claim2
+        - name: sonarr-claim3
+          persistentVolumeClaim:
+            claimName: sonarr-claim3
+status: {}

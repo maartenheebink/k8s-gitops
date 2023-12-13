@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c -f htpc.yml
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: tautulli
+  name: tautulli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: tautulli
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c -f htpc.yml
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/k8s-gitops-default: "true"
+        io.kompose.service: tautulli
+    spec:
+      containers:
+        - env:
+            - name: PGID
+            - name: PUID
+            - name: TZ
+          image: lscr.io/linuxserver/tautulli:latest
+          name: tautulli
+          ports:
+            - containerPort: 8181
+              hostPort: 8181
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /config
+              name: tautulli-claim0
+      restartPolicy: Always
+      volumes:
+        - name: tautulli-claim0
+          persistentVolumeClaim:
+            claimName: tautulli-claim0
+status: {}
